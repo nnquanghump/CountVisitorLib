@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Library Scanner — Connected Test</title>
+
+<style>
+:root{
+  --bg:#F3F5F9;
+  --surface:#FFFFFF;
+  --surface-soft:#F8FAFD;
+  --surface-strong:#EEF2F8;
+  --border:#E1E6EF;
+  --text:#111827;
+  --muted:#6B7280;
+  --faint:#9AA3B2;
+  --primary:#4F46E5;
+  --primary-2:#6366F1;
+  --primary-soft:#EEF0FF;
+  --success:#159A63;
+  --success-soft:#EAF8F1;
+  --warning:#C67A10;
+  --warning-soft:#FFF6E6;
+  --danger:#D44949;
+  --danger-soft:#FDEEEE;
+  --shadow:0 18px 55px rgba(26,32,55,.10);
+  --shadow-soft:0 8px 24px rgba(27,31,59,.06);
+  --radius-xl:24px;
+  --radius-lg:18px;
+  --radius-md:14px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at top left, rgba(99,102,241,.08), transparent 26%),
+    linear-gradient(180deg,#F7F8FC 0%,var(--bg) 100%);
+  color:var(--text);
+  font-family:Inter,Arial,sans-serif;
+  padding:30px 18px 70px;
+}
+button,input{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+.wrap{max-width:980px;margin:0 auto}
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+  margin-bottom:18px;
+}
+.brand-block{display:flex;align-items:center;gap:14px}
+.brand-mark{
+  width:46px;height:46px;border-radius:15px;
+  background:linear-gradient(145deg,var(--primary),var(--primary-2));
+  display:flex;align-items:center;justify-content:center;
+  color:white;font-weight:800;font-size:20px;
+  box-shadow:0 12px 26px rgba(79,70,229,.22);
+}
+.eyebrow{
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.14em;
+  color:var(--primary);
+  margin-bottom:6px;
+}
+h1{margin:0;font-size:30px;line-height:1.15;letter-spacing:-.02em}
+.subtitle{margin-top:6px;color:var(--muted);font-size:14px}
+
+.card{
+  background:rgba(255,255,255,.96);
+  border:1px solid var(--border);
+  border-radius:var(--radius-xl);
+  padding:26px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(10px);
+}
+.section-kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  color:var(--primary);
+  background:var(--primary-soft);
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.08em;
+  margin-bottom:12px;
+}
+.section-title{margin:0 0 6px;font-size:24px;letter-spacing:-.015em}
+.section-desc{margin:0;color:var(--muted);line-height:1.55;font-size:14px}
+
+.regions{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin:24px 0;
+}
+.regions button{
+  position:relative;
+  min-height:145px;
+  padding:20px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:linear-gradient(180deg,#FFFFFF 0%,var(--surface-soft) 100%);
+  color:var(--text);
+  text-align:left;
+  font-weight:700;
+  transition:.18s ease;
+  overflow:hidden;
+}
+.regions button::after{
+  content:"";
+  position:absolute;
+  right:-26px;bottom:-28px;
+  width:90px;height:90px;border-radius:50%;
+  background:rgba(79,70,229,.05);
+}
+.regions button:hover{
+  transform:translateY(-2px);
+  border-color:#C9CDF9;
+  box-shadow:var(--shadow-soft);
+}
+.regions button.active{
+  background:linear-gradient(180deg,#F4F5FF 0%,#ECEEFF 100%);
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(79,70,229,.08);
+}
+.floor-index{
+  display:inline-flex;
+  min-width:34px;height:28px;
+  align-items:center;justify-content:center;
+  border-radius:9px;
+  background:var(--surface-strong);
+  color:var(--faint);
+  font:700 12px var(--mono);
+  margin-bottom:34px;
+}
+.regions button.active .floor-index{
+  color:var(--primary);
+  background:#FFFFFF;
+}
+.floor-name{display:block;font-size:20px;position:relative;z-index:1}
+.floor-note{display:block;margin-top:7px;color:var(--muted);font-size:12px;font-weight:500;position:relative;z-index:1}
+
+.confirm-panel{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  border:1px solid var(--border);
+  background:var(--surface-soft);
+  border-radius:17px;
+  padding:17px 18px;
+}
+.confirm-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+.confirm-value{font-size:18px;font-weight:800}
+
+.primary,.ghost{
+  border-radius:12px;
+  padding:11px 16px;
+  font-weight:800;
+  border:1px solid transparent;
+  transition:.18s ease;
+}
+.primary{
+  background:linear-gradient(135deg,var(--primary),var(--primary-2));
+  color:#fff;
+  box-shadow:0 8px 18px rgba(79,70,229,.18);
+}
+.primary:hover{transform:translateY(-1px)}
+.primary:disabled{opacity:.4;box-shadow:none;cursor:not-allowed}
+.ghost{
+  border-color:var(--border);
+  background:#fff;
+  color:var(--text);
+}
+.ghost:hover{background:var(--surface-soft)}
+
+.scanner-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  margin-bottom:20px;
+}
+.region-current{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+.floor-chip{
+  width:44px;height:44px;
+  border-radius:14px;
+  background:var(--primary-soft);
+  color:var(--primary);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+}
+.current-label{font-size:11px;color:var(--faint);font-weight:800;letter-spacing:.1em}
+.current-region{margin:3px 0 0;font-size:25px}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:var(--success-soft);
+  color:var(--success);
+  border:1px solid #CBEAD9;
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+}
+.badge-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--success);
+  box-shadow:0 0 0 5px rgba(21,154,99,.08);
+}
+
+.scan-stage{
+  position:relative;
+  overflow:hidden;
+  text-align:center;
+  border:1px dashed #C9D0DE;
+  border-radius:22px;
+  padding:40px 26px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,250,253,.96));
+}
+.scan-stage::before,
+.scan-stage::after{
+  content:"";
+  position:absolute;border-radius:50%;
+  background:rgba(99,102,241,.05);
+}
+.scan-stage::before{width:180px;height:180px;left:-70px;top:-75px}
+.scan-stage::after{width:220px;height:220px;right:-85px;bottom:-100px}
+
+.scan-icon{
+  position:relative;
+  z-index:1;
+  width:66px;height:66px;
+  border-radius:20px;
+  background:linear-gradient(145deg,var(--primary-soft),#F7F7FF);
+  color:var(--primary);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 16px;
+  font-size:30px;
+  box-shadow:inset 0 0 0 1px rgba(79,70,229,.08);
+}
+.scan-stage h2{position:relative;z-index:1;margin:0;font-size:25px}
+.scan-stage p{position:relative;z-index:1;margin:7px 0 0;color:var(--muted);font-size:14px}
+
+input{
+  position:relative;
+  z-index:1;
+  width:min(560px,100%);
+  padding:17px 18px;
+  border:2px solid #D2D8E5;
+  border-radius:15px;
+  font:800 18px var(--mono);
+  text-align:center;
+  box-sizing:border-box;
+  margin:22px auto 16px;
+  outline:none;
+  background:#fff;
+  letter-spacing:.035em;
+}
+input:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 4px rgba(79,70,229,.08);
+}
+input::placeholder{color:#B2B9C6;font-weight:600}
+
+.status{
+  position:relative;
+  z-index:1;
+  max-width:650px;
+  margin:0 auto;
+  padding:17px 18px;
+  border-radius:16px;
+  background:#fff;
+  border:1px solid var(--border);
+  text-align:left;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+.status-icon{
+  width:38px;height:38px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto;
+  background:var(--surface-strong);
+  color:var(--faint);
+  font-weight:900;
+}
+.status.ok{background:var(--success-soft);border-color:#CBEAD9}
+.status.ok .status-icon{background:#D7F1E3;color:var(--success)}
+.status.err{background:var(--danger-soft);border-color:#F1CCCC}
+.status.err .status-icon{background:#F9DADA;color:var(--danger)}
+.status.warn{background:var(--warning-soft);border-color:#F2D9B5}
+.status.warn .status-icon{background:#FBE8C9;color:var(--warning)}
+.status-title{display:block;font-size:17px;font-weight:800;margin-bottom:3px}
+.status-meta{color:var(--muted);font-size:13px}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  margin-top:14px;
+}
+.stat-card{
+  border:1px solid var(--border);
+  background:var(--surface-soft);
+  border-radius:16px;
+  padding:16px;
+}
+.stat-label{font-size:12px;color:var(--muted);margin-bottom:7px}
+.stat-value{font:800 25px var(--mono)}
+.stat-value.small{font-size:14px;line-height:1.45}
+
+.recent{
+  margin-top:14px;
+  border:1px solid var(--border);
+  border-radius:17px;
+  overflow:hidden;
+  background:#fff;
+}
+.recent-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 16px;
+  background:var(--surface-soft);
+  border-bottom:1px solid var(--border);
+}
+.recent-title{font-size:14px;font-weight:800}
+.item{
+  display:grid;
+  grid-template-columns:86px 1fr 110px;
+  gap:12px;
+  align-items:center;
+  padding:12px 16px;
+  border-top:1px solid var(--border);
+  font-size:13px;
+}
+.item:first-child{border-top:none}
+.item-time{font:600 12px var(--mono);color:var(--muted)}
+.item-code{font:800 13px var(--mono)}
+.ok-text{color:var(--success);font-weight:800;text-align:right}
+.dup-text{color:var(--warning);font-weight:800;text-align:right}
+
+.tip{
+  margin-top:14px;
+  padding:13px 15px;
+  border-radius:14px;
+  background:#F8FAFC;
+  border:1px solid var(--border);
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+@media(max-width:760px){
+  body{padding:18px 12px 50px}
+  .top,.scanner-head,.confirm-panel{align-items:stretch;flex-direction:column}
+  .regions{grid-template-columns:1fr}
+  .regions button{min-height:auto}
+  .floor-index{margin-bottom:18px}
+  .stats{grid-template-columns:1fr}
+  .item{grid-template-columns:70px 1fr}
+  .ok-text,.dup-text{grid-column:2;text-align:left}
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="card" id="selectView">
+    <div class="section-kicker">BƯỚC 01</div><h2 class="section-title">Chọn khu vực quét</h2><p class="section-desc">Chọn đúng tầng trước khi bắt đầu phiên quét. Khu vực sẽ được giữ nguyên trong suốt phiên làm việc.</p>
+    <div class="regions">
+      <button data-region="Tầng 1"><span class="floor-index">01</span><span class="floor-name">Tầng 1</span><span class="floor-note">Khu vực quét tầng 1</span></button>
+      <button data-region="Tầng 2"><span class="floor-index">02</span><span class="floor-name">Tầng 2</span><span class="floor-note">Khu vực quét tầng 2</span></button>
+      <button data-region="Tầng 3"><span class="floor-index">03</span><span class="floor-name">Tầng 3</span><span class="floor-note">Khu vực quét tầng 3</span></button>
+    </div>
+    <div class="confirm-panel">
+      <div>
+        <div class="confirm-label">Khu vực đã chọn</div>
+        <div class="confirm-value" id="chosen">Chưa chọn khu vực</div>
+      </div>
+      <button class="primary" id="startBtn" disabled>Xác nhận và bắt đầu</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="scanView">
+    <div class="scanner-head">
+      <div class="region-current">
+        <div class="floor-chip">↳</div>
+        <div>
+          <div class="current-label">KHU VỰC HIỆN TẠI</div>
+          <h2 class="current-region" id="activeRegion">—</h2>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="badge"><span class="badge-dot"></span>Sẵn sàng</div>
+        <button class="ghost" id="changeBtn">Đổi khu vực</button>
+      </div>
+    </div>
+
+    <div class="scan-stage">
+      <div class="scan-icon">▥</div>
+      <h2>Quét mã trên thẻ</h2>
+      <p>Đưa mã vạch vào máy quét. Hệ thống sẽ tự ghi nhận khi scanner gửi phím Enter.</p>
+      <input id="barcode" placeholder="Ví dụ: 21Y3080045" autocomplete="off">
+
+    <div class="status" id="status">
+      <div class="status-icon">✓</div>
+      <div>
+        <span class="status-title" id="statusTitle">Sẵn sàng nhận mã</span>
+        <div class="status-meta" id="statusMeta">Chưa có lượt quét</div>
+      </div>
+    </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Lượt trong phiên</div>
+        <div class="stat-value" id="sessionCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Lượt gần nhất</div>
+        <div class="stat-value small" id="lastScanText">—</div>
+      </div>
+    </div>
+
+    <div class="recent">
+      <div class="recent-head"><div class="recent-title">5 lượt gần nhất</div></div>
+      <div id="recentList"><div class="item" style="display:block;color:var(--faint)">Chưa có lượt quét.</div></div>
+    </div>
+  </div>
+</div>
+<script>
+const SCANNER_CONFIG = {
+  duplicateWindowMs: 20000,
+  regions: {
+    'Tầng 1': {
+      formUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSe87QjuF9gGn8GiRlel-STH69oLuR6jGHcXiXCf68TjeZFpGA/formResponse',
+      readerEntry: 'entry.1433898604',
+      regionEntry: null
+    },
+    'Tầng 2': {
+      formUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSeP0tOQsgT2WZ_4PJ2YSrjwtgy025tEcgd3AWmIFiU4phXf4Q/formResponse',
+      readerEntry: 'entry.1433898604',
+      regionEntry: null
+    },
+    'Tầng 3': {
+      formUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSdhwEdzae0lZGSb-fcjYOCvF2IJD_aCLclTnUyhtlW0VBzXCg/formResponse',
+      readerEntry: 'entry.1433898604',
+      regionEntry: null
+    }
+  }
+};
+</script>
+<script>
+let selected=null, active=null, recent=[], lastScan=null, sessionCount=0;
+
+const q=s=>document.querySelector(s);
+document.querySelectorAll('[data-region]').forEach(btn=>{
+  btn.onclick=()=>{
+    selected=btn.dataset.region;
+    document.querySelectorAll('[data-region]').forEach(x=>x.classList.toggle('active',x===btn));
+    q('#chosen').textContent='Đã chọn: '+selected;
+    q('#startBtn').disabled=false;
+  };
+});
+
+q('#startBtn').onclick=()=>{
+  active=selected;
+  q('#selectView').classList.add('hidden');
+  q('#scanView').classList.remove('hidden');
+  q('#activeRegion').textContent=active;
+  setTimeout(()=>q('#barcode').focus(),50);
+};
+
+q('#changeBtn').onclick=()=>{
+  q('#scanView').classList.add('hidden');
+  q('#selectView').classList.remove('hidden');
+  active=null;
+};
+
+function normalizeId(v){
+  return String(v||'').normalize('NFKC').replace(/\s+/g,'').trim().toUpperCase();
+}
+
+function renderRecent(){
+  if(!recent.length){
+    q('#recentList').innerHTML='<div class="item" style="display:block;color:var(--faint)">Chưa có lượt quét.</div>';
+    return;
+  }
+  q('#recentList').innerHTML=recent.map(x=>`<div class="item">${x.time} — ${x.code} — ${x.status}</div>`).join('');
+}
+
+async function submitToForm(code){
+  const cfg = SCANNER_CONFIG.regions[active];
+
+  if(!cfg || !cfg.formUrl || !cfg.readerEntry){
+    throw new Error('Khu vực này chưa được cấu hình Google Form.');
+  }
+
+  const body = new URLSearchParams();
+  body.append(cfg.readerEntry, code);
+
+  if(cfg.regionEntry){
+    body.append(cfg.regionEntry, active);
+  }
+
+  await fetch(cfg.formUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: body.toString()
+  });
+}
+
+q('#barcode').addEventListener('keydown',async e=>{
+  if(e.key!=='Enter') return;
+  e.preventDefault();
+
+  const code=normalizeId(q('#barcode').value);
+  q('#barcode').value='';
+
+  if(!code) return;
+
+  const now=Date.now();
+  if(lastScan && lastScan.code===code && now-lastScan.time<20000){
+    q('#status').className='status warn';
+    q('#statusTitle').textContent='Thẻ vừa được quét';
+    q('#statusMeta').textContent=code+' — bỏ qua trong 20 giây';
+    recent.unshift({code,time:new Date().toLocaleTimeString('vi-VN'),status:'BỎ TRÙNG'});
+    recent=recent.slice(0,5); renderRecent(); q('#barcode').focus(); return;
+  }
+
+  try{
+    await submitToForm(code);
+    lastScan={code,time:now};
+    q('#status').className='status ok';
+    q('#statusTitle').textContent='Đã gửi lượt quét';
+    q('#statusMeta').textContent=code+' — '+active;
+    sessionCount++; q('#sessionCount').textContent=sessionCount; q('#lastScanText').textContent=code+' • '+new Date().toLocaleTimeString('vi-VN'); recent.unshift({code,time:new Date().toLocaleTimeString('vi-VN'),status:'ĐÃ GỬI'});
+    recent=recent.slice(0,5); renderRecent();
+  }catch(err){
+    q('#status').className='status err';
+    q('#statusTitle').textContent='Không thể gửi';
+    q('#statusMeta').textContent=err.message;
+  }
+
+  q('#barcode').focus();
+});
+</script>
+</body>
+</html>
